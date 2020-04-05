@@ -1,0 +1,93 @@
+#!yab
+import tools
+
+dim r(16),l(65),f(16),x(19),b(16)
+l=1:g=0:e=0:x=16
+d=1:ys=101:yd=101
+
+for i = 0 to 65
+	l(i)=0
+next i
+
+for i = 1 to x
+	n = int(3*rnd()+1)
+	if i = 1 then 
+		n = 3
+	endif
+	for j = 1 to n
+		r = int(64*rnd()+1)
+		if l(r)<>0 then
+			continue
+		endif
+		l(r)=i
+	next j
+	r(i) = int(524287*rnd())
+	b(i)=0
+next i:b(l)=1
+
+r(1)=24576:for i=1 to 19:x(i)=0:next i
+
+label hazards	// 150
+if rnd()<.01 then
+	print "Tremor"
+	for i=1 to 20
+		l(i)=int(x*rnd()+1)
+	next i
+endif
+
+if rnd()<.01 then
+	print "Tremor"
+	for i=1 to 20
+		l(i)=0
+	next i
+endif
+
+if x(1)*x(12)=1 and rnd()<.4 then
+	print "Cursed by demon!"
+	yd=int(.5*yd)
+endif
+
+if x(9)*x(11)=1 and rnd()<.4 then
+	print "Gassed!"
+	ys=int(.5*ys)
+endif
+
+label inctest
+yd=yd-d
+ys=ys-d
+if ys <=0 or yd<=0 then
+	print "You're dead"
+	end
+endif
+
+label ouputstatus
+print "Gold:"+str$(g)+"    ";
+print "Exp: "+str$(e)+" Depth: "+str$(d)
+print "Speed:    "+str$(yd)+" Strength:    "+str$(ys)
+gosub adjrooms
+goto convert
+
+label adjrooms
+for i=1 to x:f(i)=0:next
+for i=1 to 64
+	if l<>l(i) then
+		continue
+	endif
+	if l(i+1)<>0 and l(i+1)<>l then
+		f(l(i+1))=1
+	endif
+	if l(i-1)<>0 and l(i-1)<>l then
+		f(l(i-1))=1
+	endif
+next i
+return
+
+label convert
+n=r(l)
+for i=1 to 19
+	q=int(n/2)
+	x(i)=2*(n/2-q)
+	n=q
+next i
+
+label mdg

@@ -1,0 +1,5 @@
+export sub rnd()
+	local r
+	r = ran()
+	return r
+end sub
