@@ -5,6 +5,7 @@ dim r(16),l(65),f(16),x(19),b(16)
 l=1:g=0:e=0:x=16
 d=1:ys=101:yd=101
 
+label startit
 for i = 0 to 65
 	l(i)=0
 next i
@@ -60,7 +61,8 @@ if ys <=0 or yd<=0 then
 	end
 endif
 
-label ouputstatus
+label outputstatus
+print "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
 print "Gold:"+str$(g)+"    ";
 print "Exp: "+str$(e)+" Depth: "+str$(d)
 print "Speed:    "+str$(yd)+" Strength:    "+str$(ys)
@@ -91,3 +93,206 @@ for i=1 to 19
 next i
 
 label mdg
+if x(2)=0 then 
+	ms=0:goto demons
+endif
+
+if f=1 then
+	goto mss
+endif
+
+ms=d*(x(3)+2*x(4)+4*x(5)+l)
+md=d*(x(6)+2*x(7)+4*x(8)+l)
+label mss
+print "Monster's Speed: "+str$(md)+" Strength: "+str$(ms)
+label demons
+if x(1)*x(12)=1 then
+	print "Demons"
+endif
+if x(9)+x(11)=1 then
+	print "Poisonous gas"
+endif
+
+label treasure1
+if x(10)<>1 then
+	t=0
+	goto slidedropoffs
+endif
+t=x(11)+2*x(12)+4*x(13)+1
+print "Maximum Gold: "+str$(t*l*d+1)
+
+label slidedropoffs
+s=x(15)+2*x(16)+4*x(17)+8*x(18)+1
+if s>x then
+	s=1
+endif
+if s=0 then
+	s=1
+endif
+if x(14)=0 or s=l then
+	goto dropit
+endif
+print "Slide to: "+str$(s)
+
+label dropit
+if x(19)*x(13)=1 then
+	print "Dropoff"
+endif
+
+label inputmove
+print "Move from "+str$(l)+" to ";
+for i=1 to x
+	if f(i)=1 and i<>l then
+		print i;
+	endif
+next i
+
+input m
+if m=88 then
+	goto printrooms
+endif
+
+if m<0 and x(19)*x(13)=1 then
+	d=d+1
+	f=0
+	goto startit
+endif
+
+if m<0 then
+	print "No dropoff"
+	goto hazards
+endif
+
+if m>x and l=1 then
+	print "You found "+str$(g)+" pieces of gold."
+	end
+endif
+
+if m<x then
+	goto movetrade
+endif
+
+label magicwand
+if rnd()<.4 then
+	print "Backfire"
+	ys=int(.5*ys)
+	yd=int(.5*yd)
+	goto hazards
+endif
+print "Wand works"
+r(l)=266240
+goto outputstatus
+
+label movetrade
+if ms>0 then
+	goto fight
+endif
+if m<>0 or l<>1 then
+	goto treasure2
+endif
+
+label try1
+print "Experience: "+str$(e)+" Speed: "+str$(yd)+" Strength: "+str$(ys)
+input "Add Speed > " n
+if e-n<0 then
+	print "Need more experience"
+	goto try1
+endif
+e=e-n:yd=yd+n
+print "Experience left: "+str$(e)
+label try2
+input "Add Strength > " n
+if e-n < 0 then
+	print "Need more experience"
+	goto try2
+endif
+e=e-n:ys=ys+n
+goto outputstatus
+
+label fight
+f=1
+if m>0 then
+	goto dorun
+endif
+yh=int(rnd()*ys):mh=int(rnd()*ms)
+if yh>ms then
+	yh=ms
+endif
+if mh>ys then
+	mh=ys
+endif
+if rnd()*yd>rnd()*md then
+	goto uattack
+endif
+print "Monster attacks"
+ys=ys-mh:ms=ms-int(.5*yh)
+goto fight2
+label uattack
+print "You attack"
+ms=ms-yh:ys=ys-int(.5*mh)
+label fight2
+e=e+2*yh
+if ms<=0 then
+	print "Monster Dead!"
+	r(l)=r(l)-2
+	goto hazards
+endif
+print
+print "Monster still alive"
+goto hazards
+
+label dorun
+if rnd()*yd>rnd()*md then
+	print "Escaped"
+	goto domove
+endif
+print "Monster hit you"
+ys=ys-int(.2*ms)
+goto domove
+
+label treasure2
+if t=0 then
+	goto domove
+endif
+g1=int(rnd()*t*l*d)+1
+if x(1)*x(12)=1 and rnd()<.4 then
+	print "Demon got gold!"
+	g1=0
+endif
+print "You found "+str$(g1)+" pieces of gold."
+g=g+g1
+r(l)=r(l)-512
+e=e+g1
+
+label domove
+if f(m)=1 or m=s then
+	l=m
+	f=0
+	e=e+d
+	b(l)=1
+	goto hazards
+endif
+print "Not adjacent"
+goto hazards
+
+label printrooms
+l1=l
+for k=1 to x
+	if b(k)<>1 then
+		goto room1
+	endif
+	print k;:print"--";
+	l=k
+	gosub adjrooms
+	for j=1 to x
+		if f(j) and j<>k then
+			print j;
+		endif
+	next j
+	print
+label room1
+next k
+l=l1
+goto outputstatus
+
+	
